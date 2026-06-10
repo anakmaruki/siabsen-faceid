@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi - SIABSEN FACE ID</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script async src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-gradient sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-person-check"></i> SIABSEN FACE ID
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-outline-light" id="darkModeBtn" onclick="toggleDarkMode()">
+                    <i class="bi bi-moon"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> <span id="userName">Pegawai</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profil</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-clock-history"></i> Riwayat</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" id="logoutBtn" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="absensiTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="masuk-tab" data-bs-toggle="tab" data-bs-target="#masuk" type="button" role="tab">
+                            <i class="bi bi-box-arrow-in-right"></i> Absensi Masuk
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                            <i class="bi bi-clock-history"></i> Riwayat Absensi
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="absensiTabContent">
+                    <!-- Absensi Masuk Tab -->
+                    <div class="tab-pane fade show active" id="masuk" role="tabpanel">
+                        <div class="card shadow-lg">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title fw-bold mb-0">
+                                    <i class="bi bi-camera-video"></i> Absensi Masuk - Face Recognition
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Camera Container -->
+                                <div class="camera-container mb-4 position-relative">
+                                    <video id="videoFeed" width="100%" height="auto" autoplay playsinline></video>
+                                    <canvas id="canvasOutput" width="640" height="480" style="position: absolute; top: 0; left: 0; display: none;"></canvas>
+                                </div>
+
+                                <!-- Face Status -->
+                                <div id="absensiStatus" class="mb-3"></div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-grid gap-2 mb-3">
+                                    <button type="button" class="btn btn-primary btn-lg" onclick="startAbsensiMasuk()">
+                                        <i class="bi bi-camera"></i> Mulai Absensi Masuk
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="stopCamera()">
+                                        <i class="bi bi-stop"></i> Hentikan
+                                    </button>
+                                </div>
+
+                                <!-- Absensi Result -->
+                                <div id="absensiResult"></div>
+
+                                <!-- Instructions -->
+                                <div class="alert alert-info mt-4" role="alert">
+                                    <h6 class="alert-heading">📋 Petunjuk Penggunaan</h6>
+                                    <ol class="mb-0">
+                                        <li>Pastikan pencahayaan cukup</li>
+                                        <li>Posisikan wajah Anda di depan kamera</li>
+                                        <li>Klik tombol "Mulai Absensi Masuk"</li>
+                                        <li>Sistem akan mendeteksi dan memverifikasi wajah Anda</li>
+                                        <li>Absensi masuk akan dicatat secara otomatis</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Riwayat Absensi Tab -->
+                    <div class="tab-pane fade" id="history" role="tabpanel">
+                        <div class="card shadow-lg">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title fw-bold mb-0">
+                                    <i class="bi bi-clock-history"></i> Riwayat Absensi Anda
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Tanggal</th>
+                                                <th>Jam Masuk</th>
+                                                <th>Jam Pulang</th>
+                                                <th>Status</th>
+                                                <th>Confidence</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="attendanceTableBody">
+                                            <!-- Loaded by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/faceid.js"></script>
+    <script src="js/absensi.js"></script>
+</body>
+</html>
