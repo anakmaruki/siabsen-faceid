@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SIABSEN FACE ID</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+    <div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
+        <div class="row w-100">
+            <!-- Left Side - Info (Hidden on Mobile) -->
+            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-primary text-white p-5">
+                <div class="text-center">
+                    <div class="mb-5">
+                        <i class="bi bi-shield-lock" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="fw-bold mb-3">SIABSEN FACE ID</h2>
+                    <p class="lead mb-4">Sistem Absensi Pegawai Berbasis Face Recognition</p>
+                    <div class="alert alert-light" role="alert">
+                        <small>
+                            <strong>Demo Credentials:</strong><br>
+                            Admin: admin / admin123<br>
+                            Employee: EMP001 / password123
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Login Form -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center p-4">
+                <div class="login-card card shadow-lg w-100" style="max-width: 400px;">
+                    <div class="card-body p-5">
+                        <!-- Mobile Header -->
+                        <div class="text-center d-lg-none mb-4">
+                            <i class="bi bi-person-check text-primary" style="font-size: 3rem;"></i>
+                            <h4 class="fw-bold mt-3">SIABSEN</h4>
+                            <p class="text-muted small">Face ID System</p>
+                        </div>
+
+                        <h5 class="card-title text-center fw-bold mb-4">Masuk ke Akun Anda</h5>
+
+                        <!-- Alert Messages -->
+                        <div id="alertContainer"></div>
+
+                        <!-- Login Form -->
+                        <form id="loginForm" onsubmit="handleLogin(event)">
+                            <div class="mb-3">
+                                <label for="username" class="form-label fw-bold">
+                                    <i class="bi bi-person"></i> Username
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control form-control-lg" 
+                                    id="username" 
+                                    placeholder="Masukkan username" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label fw-bold">
+                                    <i class="bi bi-lock"></i> Password
+                                </label>
+                                <div class="input-group">
+                                    <input 
+                                        type="password" 
+                                        class="form-control form-control-lg" 
+                                        id="password" 
+                                        placeholder="Masukkan password" 
+                                        required
+                                    >
+                                    <button 
+                                        class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        onclick="togglePasswordVisibility()"
+                                    >
+                                        <i class="bi bi-eye" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input 
+                                    type="checkbox" 
+                                    class="form-check-input" 
+                                    id="rememberMe"
+                                >
+                                <label class="form-check-label" for="rememberMe">
+                                    Ingat saya
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
+                                <i class="bi bi-box-arrow-in-right"></i> Masuk
+                            </button>
+                        </form>
+
+                        <!-- Demo Info -->
+                        <div class="alert alert-info mt-4" role="alert">
+                            <small>
+                                <strong><i class="bi bi-info-circle"></i> Akun Demo:</strong><br>
+                                👨‍💼 Admin: <code>admin</code> / <code>admin123</code><br>
+                                👤 Pegawai: <code>EMP001</code> / <code>password123</code>
+                            </small>
+                        </div>
+
+                        <!-- Back to Home -->
+                        <div class="text-center mt-4">
+                            <a href="index.html" class="text-decoration-none text-muted">
+                                <i class="bi bi-arrow-left"></i> Kembali ke Beranda
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner-container d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            // Show loading spinner
+            showLoadingSpinner();
+
+            // Demo login (in production, this would call the API)
+            setTimeout(() => {
+                const users = {
+                    'admin': { password: 'admin123', role: 'admin', name: 'Administrator' },
+                    'EMP001': { password: 'password123', role: 'pegawai', name: 'John Doe' },
+                    'EMP002': { password: 'password123', role: 'pegawai', name: 'Jane Smith' }
+                };
+
+                if (users[username] && users[username].password === password) {
+                    // Login successful
+                    const user = users[username];
+                    const sessionToken = btoa(JSON.stringify({ username, role: user.role, timestamp: Date.now() }));
+                    
+                    localStorage.setItem('user_session', sessionToken);
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('role', user.role);
+                    localStorage.setItem('name', user.name);
+                    
+                    if (rememberMe) {
+                        localStorage.setItem('remember_me', 'true');
+                        localStorage.setItem('remembered_username', username);
+                    }
+
+                    hideLoadingSpinner();
+                    showAlert('Login berhasil!', 'success');
+                    
+                    setTimeout(() => {
+                        if (user.role === 'admin') {
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            window.location.href = 'absensi.html';
+                        }
+                    }, 1000);
+                } else {
+                    hideLoadingSpinner();
+                    showAlert('Username atau password salah!', 'danger');
+                }
+            }, 1000);
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('bi-eye');
+                eyeIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('bi-eye-slash');
+                eyeIcon.classList.add('bi-eye');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHTML;
+        }
+
+        function showLoadingSpinner() {
+            document.getElementById('loadingSpinner').classList.remove('d-none');
+        }
+
+        function hideLoadingSpinner() {
+            document.getElementById('loadingSpinner').classList.add('d-none');
+        }
+
+        // Load remembered username
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('remember_me') === 'true') {
+                document.getElementById('username').value = localStorage.getItem('remembered_username');
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+    </script>
+</body>
+</html>
